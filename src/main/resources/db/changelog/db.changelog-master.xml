@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+        http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
+	<!--changeSet context="init" author="mac (generated)" id="hibernate_sequence">
+		<createTable tableName="hibernate_sequence">
+			<column name="next_val" type="BIGINT" />
+		</createTable>
+	</changeSet>
+	<changeSet id="environment" author="Szász Csaba">
+		<createTable tableName="environment">
+			<column name="id" type="bigint">
+				<constraints primaryKey="true"
+					primaryKeyName="environment_id_pk" />
+			</column>
+			<column name="name" type="varchar(250)">
+				<constraints unique="true"
+					uniqueConstraintName="environment_name_unq" />
+			</column>
+		</createTable>
+		<createTable tableName="configuration_template">
+			<column name="id" type="bigint">
+				<constraints primaryKey="true"
+					primaryKeyName="configuration_template_id_pk" />
+			</column>
+			<column name="name" type="varchar(250)">
+				<constraints unique="true"
+					uniqueConstraintName="configuration_template_name_unq" />
+			</column>
+		</createTable>
+		<sql>
+		CREATE TABLE `configuration_template_properties` (
+ 		 `configuration_template_id` bigint(20) NOT NULL,
+  		 `properties` varchar(255) DEFAULT NULL,
+  		 `pos` int(11) NOT NULL,
+  		  PRIMARY KEY (`configuration_template_id`,`pos`),
+  		  CONSTRAINT `FKpq9nihm3unvgfq4ico9h6moew` FOREIGN KEY (`configuration_template_id`) REFERENCES `configuration_template` (`id`)
+		);
+		</sql>
+		<sql>
+		  INSERT INTO hibernate_sequence (next_val) VALUES (0);
+		</sql>
+	</changeSet-->
+</databaseChangeLog>
