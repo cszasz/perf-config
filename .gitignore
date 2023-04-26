@@ -1,7 +1,6 @@
-
-eatme.server.hibernate/src/db/db.changelog.diff.xml
-eatme.server.hibernate/src/db/db.changelog.diff.xml
 */node_modules
 */platforms
 */plugins
-*/target
+*/target/classes
+*/target/target/.DS_Store
+target
