@@ -36,7 +36,7 @@ export interface IConfiguration {
     name: string;
     description: string,
     properties: [IPropertyInstance],
-    configurationTemplate: IConfigurationTemplate,
+    configurationTemplate: IConfigurationTemplate[] | [IConfigurationTemplate],
     environment: IEnvironment
 }
 

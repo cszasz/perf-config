@@ -1,10 +1,7 @@
 package hu.kh.perfconfig.entities;
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -15,15 +12,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import hu.kh.perfconfig.IDDeserializer;
-import hu.kh.perfconfig.IDSerializer;
-import hu.kh.perfconfig.IPropertySerializer;
+import hu.kh.perfconfig.IDArrayDeserializer;
+import hu.kh.perfconfig.IDArraySerializer;
 
 @Entity
 public class Configuration {
@@ -41,15 +35,17 @@ public class Configuration {
 	String description;
 
 	@JsonProperty
-	@JsonSerialize(using = IDSerializer.class)
-	@JsonDeserialize(using = IDDeserializer.class)
-	Long configurationTemplate;
-
-	@JsonProperty
 	@CollectionTable(name = "configuration_properties")
 	@ElementCollection
 	@Embedded
 	List<PropertyInstance> properties = new ArrayList<>();
+
+	@JsonProperty
+	@JsonSerialize(using = IDArraySerializer.class)
+	@JsonDeserialize(using = IDArrayDeserializer.class)
+	@ElementCollection
+	List<Long> configurationTemplate = new ArrayList<>();
+
 	
 	/*
 	@JsonProperty

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { IResourceComponentsProps } from "@refinedev/core";
 
 import {
+  Create,
   Edit,
   ListButton,
   RefreshButton,
@@ -22,19 +23,14 @@ import { API_URL } from "App";
 export const ConfigurationsCreate: React.FC<IResourceComponentsProps> = () => {
   const { formProps, saveButtonProps } = useForm<IConfigurationTemplate>();
 
-  const [myValue, setMyValue] = useState({
-    value: "",
-    label: "",
-  });
-  const [data, setData] = useState([{ name: "-", value: "" }]);
-
+  /*
   const { selectProps: configurationTemplateSelectProps } = useSelect<IConfigurationTemplate>({
       resource: "configurationTemplates",
       defaultValue: "",
       optionLabel: "name",
       metaData: ["id", "name", "properties"],
     });
-
+    
 
   const columns = [
     {
@@ -71,7 +67,7 @@ export const ConfigurationsCreate: React.FC<IResourceComponentsProps> = () => {
       ),
     },
   ];
-
+  */
 
   return (
     <Create saveButtonProps={saveButtonProps}>
@@ -98,25 +94,6 @@ export const ConfigurationsCreate: React.FC<IResourceComponentsProps> = () => {
         >
           <Input />
         </Form.Item>
-        <Form.Item
-          label="Configuration Template"
-          name={["configurationTemplate", "id"]}
-          rules={[
-            {
-              required: true,
-            },
-          ]}
-        >
-          <Select
-            {...configurationTemplateSelectProps}
-            onChange={(e, t) => setMyValue(e)}
-          />
-        </Form.Item>
-        <Form.Item name="properties" label="Properties">
-          <Table dataSource={propertiesArray} columns={columns}></Table>
-        </Form.Item>
-      </Form>
-      <Button onClick={handleAddProperty}>Add</Button>
       </Form>
     </Create>
   );

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { IResourceComponentsProps } from "@refinedev/core";
+import type { SelectProps } from 'antd';
 
 import {
   Edit,
@@ -29,6 +30,8 @@ export const ConfigurationsEdit: React.FC<
 
   const postData = queryResult?.data?.data;
 
+  const options: SelectProps['options'] = [];
+
   postData?.properties &&
     postData?.properties.forEach((p) => {
       if (!propertiesMap[p.interface]) {
@@ -41,13 +44,20 @@ export const ConfigurationsEdit: React.FC<
 
   //const properties: IProperty[][] = Object.values(propertiesMap);
 
+  
   const { selectProps: configurationTemplateSelectProps } =
     useSelect<IConfigurationTemplate>({
       resource: "configurationTemplates",
-      defaultValue: postData?.configurationTemplate?.id ?? "",
+      //defaultValue=postData?.configurationTemplate.map(a => {return {value: String(a) , label: String(a)}})
+      defaultValue: postData?.configurationTemplate?.map(a => Number(a.id)) ?? "",
       optionLabel: "name",
       metaData: ["id", "name", "properties"],
     });
+
+    console.log(postData?.configurationTemplate?.map(a => Number(a.id)));
+
+    console.log(configurationTemplateSelectProps);
+  
 
   const [myValue, setMyValue] = useState({
     value: "",
@@ -55,6 +65,7 @@ export const ConfigurationsEdit: React.FC<
   });
   const [data, setData] = useState([{ name: "-", value: "" }]);
 
+  /*
   if (
     postData?.configurationTemplate?.id &&
     myValue.value != (postData?.configurationTemplate?.id ?? "")
@@ -63,7 +74,7 @@ export const ConfigurationsEdit: React.FC<
       value: postData?.configurationTemplate?.id ?? "",
       label: postData?.configurationTemplate?.name ?? "",
     });
-  }
+  }*/
 
   useEffect(() => {
     console.log(myValue);
@@ -218,7 +229,9 @@ export const ConfigurationsEdit: React.FC<
           ]}
         >
           <Select
+            mode="multiple"
             {...configurationTemplateSelectProps}
+            
             onChange={(e, t) => setMyValue(e)}
           />
         </Form.Item>
