@@ -14,7 +14,7 @@ export interface IGoal {
 }
 
 export interface IConfigurationTemplate {
-    id?: string;
+    id: number;
     name: string;
     description: string,
     properties: IProperty[] | [IProperty] 
@@ -26,6 +26,7 @@ export interface IProperty {
 }
 
 export interface IPropertyInstance {
+    configuration_template: number,
     interface: string,
     name: string;
     value: string,
@@ -36,7 +37,11 @@ export interface IConfiguration {
     name: string;
     description: string,
     properties: [IPropertyInstance],
-    configurationTemplate: IConfigurationTemplate[] | [IConfigurationTemplate],
+    configurationTemplate: number[],
     environment: IEnvironment
 }
 
+export interface ITag {
+    id: number;
+    title: string;
+}

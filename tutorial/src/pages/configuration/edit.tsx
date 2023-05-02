@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { SetStateAction, useEffect, useState } from "react";
 import { IResourceComponentsProps } from "@refinedev/core";
-import type { SelectProps } from 'antd';
+import type { SelectProps } from "antd";
 
 import {
   Edit,
@@ -15,10 +15,13 @@ import { Form, Input, Select, Space, Table } from "antd";
 import {
   IConfiguration,
   IConfigurationTemplate,
+  IEnvironment,
   IPropertyInstance,
 } from "interfaces";
 import { Button } from "@mui/material";
 import { API_URL } from "App";
+
+var isSuccess: boolean | undefined = false;
 
 export const ConfigurationsEdit: React.FC<
   IResourceComponentsProps<IConfiguration>
@@ -30,151 +33,199 @@ export const ConfigurationsEdit: React.FC<
 
   const postData = queryResult?.data?.data;
 
-  const options: SelectProps['options'] = [];
+  const propertiesArray: any = { init: true }; //Object.values(propertiesMap);
 
-  postData?.properties &&
-    postData?.properties.forEach((p) => {
-      if (!propertiesMap[p.interface]) {
-        propertiesMap[p.interface] = { interface: p.interface };
-      }
-      propertiesMap[p.interface][p.name] = p.value;
-    });
+  const [properties, setProperties] = useState(propertiesArray);
 
-  const propertiesArray: object[] = Object.values(propertiesMap);
+  const [propertiesSet, setPropertiesSet] = useState(postData?.properties);
 
-  //const properties: IProperty[][] = Object.values(propertiesMap);
+  if (propertiesArray.init)
+    postData?.properties &&
+      postData?.properties.forEach((p) => {
+        if (!properties[p.configuration_template]) {
+          properties[p.configuration_template] = [];
+        }
+        var propertiesc: any = properties[p.configuration_template].find(
+          (pp) => pp["interface"] === p.interface
+        );
+        console.log(p.interface, propertiesc);
+        if (!propertiesc) {
+          propertiesc = { interface: p.interface };
+          properties[p.configuration_template].push(propertiesc);
+        }
+        propertiesc[p.name] = p.value;
+      });
 
-  
+  let initValue: any = 0;
+  const [myValue, setMyValue] = useState(initValue);
+
   const { selectProps: configurationTemplateSelectProps } =
     useSelect<IConfigurationTemplate>({
       resource: "configurationTemplates",
-      //defaultValue=postData?.configurationTemplate.map(a => {return {value: String(a) , label: String(a)}})
-      defaultValue: postData?.configurationTemplate?.map(a => Number(a.id)) ?? "",
       optionLabel: "name",
-      metaData: ["id", "name", "properties"],
+      //defaultValue: myValue || postData?.configurationTemplate || [],
     });
 
-    console.log(postData?.configurationTemplate?.map(a => Number(a.id)));
+  const [data, setData] = useState({});
 
-    console.log(configurationTemplateSelectProps);
-  
+  interface CC {
+    columns: any;
+    handleAddProperty: any;
+  }
 
-  const [myValue, setMyValue] = useState({
-    value: "",
-    label: "",
-  });
-  const [data, setData] = useState([{ name: "-", value: "" }]);
+  let ccc: CC = { columns: [], handleAddProperty: () => {} };
 
-  /*
-  if (
-    postData?.configurationTemplate?.id &&
-    myValue.value != (postData?.configurationTemplate?.id ?? "")
-  ) {
-    setMyValue({
-      value: postData?.configurationTemplate?.id ?? "",
-      label: postData?.configurationTemplate?.name ?? "",
-    });
-  }*/
+  //const [columns, setColumns] = useState(ccc);
 
   useEffect(() => {
-    console.log(myValue);
-    if (myValue.value)
-      fetch(API_URL + "/configurationTemplates/" + myValue.value)
-        .then((response) => response.json())
-        .then((data) => {
-          setData(data.properties);
-        })
-        .catch((error) => console.log(error));
+    if (myValue && data["init"] !== myValue) {
+      const ff = async () => {
+        let d: any = {};
+        d = {
+          ...data,
+          init: myValue,
+        };
+        for (let i in myValue) {
+          const dd = await fetch(
+            API_URL + "/configurationTemplates/" + myValue[i]
+          );
+          const json = await dd.json();
+          d[myValue[i]] = {
+            value: myValue[i],
+            name: json.name,
+            properties: json.properties,
+          };
+        }
+        // if (JSON.stringify(d) !== JSON.stringify(data)) {
+        setData(d);
+        //}
+      };
+      ff();
+    }
   }, [myValue]);
-
-  const handleAddProperty = () => {
-    const newRow = [{ interface: "" }];
-    data.forEach((p) => {
-      newRow[p.name] = p.value;
-    });
-    propertiesArray.push(newRow);
-    //form.setFieldValue("properties", [...properties]);
-    form.resetFields();
-  };
-
-  const handleRemoveProperty = (index) => {
-    propertiesArray.splice(index, 1);
-    //form.setFieldValue("properties", [...properties]);
-    updateProperties();
-    form.resetFields();
-  };
 
   function updateProperties() {
     const props: IPropertyInstance[] = [];
-    propertiesArray.forEach((p) => {
-      data.forEach((d) => {
-        const o = {
-          interface: String(p["interface"]),
-          name: d.name,
-          value: p[d.name],
-        };
-        props.push(o);
+    Object.keys(properties).forEach((c) => {
+      if (c === "init") return;
+      properties[c].forEach((p) => {
+        Object.keys(p).forEach((d) => {
+          if (d === "interface") return;
+          const o: IPropertyInstance = {
+            configuration_template: Number(c),
+            interface: String(p["interface"]),
+            name: d,
+            value: p[d],
+          };
+          props.push(o);
+        });
       });
     });
     form.setFieldValue("properties", props);
   }
 
-  const handlePropertyChange = (index2: number, name: string, value: any) => {
-    const newProperties = [...propertiesArray];
-    newProperties[index2][name] = value;
-    const props: IPropertyInstance[] = [];
-    newProperties.forEach((p) => {
-      data.forEach((d) => {
-        const o = {
-          interface: String(p["interface"]),
-          name: d.name,
-          value: p[d.name],
-        };
-        props.push(o);
-      });
+  const handlePropertyChange = (
+    c: number,
+    index2: number,
+    name: string,
+    value: any
+  ) => {
+    console.log(c, index2, name, value);
+    const propertiesArray = { ...properties };
+    propertiesArray[c][index2][name] = value;
+    setProperties(propertiesArray);
+    updateProperties();
+  };
+
+  const handleAddProperty = (c: number) => {
+    const propertiesArray = { ...properties };
+    const newRow = { interface: "" };
+    data[c].properties.forEach((p) => {
+      newRow[p.name] = p.value;
     });
-    form.setFieldValue("properties", props);
+    if (!propertiesArray[c]) propertiesArray[c] = [];
+    propertiesArray[c].push(newRow);
+    //form.setFieldValue("properties", [...properties]);
+    form.resetFields();
+    setProperties(propertiesArray);
+    updateProperties();
+  };
+
+  const handleRemoveProperty = (c: number, index) => {
+    const propertiesArray = { ...properties };
+    propertiesArray[c].splice(index, 1);
+    //updateProperties();
+    form.resetFields();
+    setProperties(propertiesArray);
+    updateProperties();
   };
 
   function getText(text: string, record: object, name: string) {
     return record[name];
   }
 
-  const columns = [
-    {
-      title: "Interface",
-      dataIndex: "interface",
-      render: (text: string, record, index: number) => (
-        <Input
-          value={text}
-          onChange={(e) =>
-            handlePropertyChange(index, "interface", e.target.value)
-          }
-        />
-      ),
+  if (!myValue && (!data || data["init"] != postData?.configurationTemplate)) {
+    let eee = postData?.configurationTemplate as unknown;
+    let ee = eee as SetStateAction<never[]>;
+    setTimeout(() => {
+      //setData({ init: ee });
+      setMyValue(ee);
+    }, 100);
+  }
+
+  /*
+  useEffect(
+    () => () => {
+      setMyValue(0);
     },
-    ...data.map((d, index) => {
-      return {
-        title: d.name,
-        dataIndex: index,
-        render: (text: string, record, index2: number) => (
+    [myValue]
+  );*/
+
+  const columns = {};
+
+  (myValue || (postData?.configurationTemplate ?? [])).forEach((c: number) => {
+    if (!data || !data[c]) return;
+    const ccolumns = [
+      {
+        title: "Interface",
+        dataIndex: "interface",
+        render: (text: string, record, index: number) => (
           <Input
-            value={getText(text, record, d.name)}
+            value={text}
             onChange={(e) =>
-              handlePropertyChange(index2, d.name, e.target.value)
+              handlePropertyChange(c, index, "interface", e.target.value)
             }
           />
         ),
-      };
-    }),
-    {
-      title: "Action",
-      dataIndex: "",
-      render: (text: string, record, index: number) => (
-        <Button onClick={() => handleRemoveProperty(index)}>Delete</Button>
-      ),
-    },
-  ];
+      },
+      ...data[c].properties.map((d, index) => {
+        return {
+          title: d.name,
+          dataIndex: index,
+          render: (text: string, record, index2: number) => (
+            <Input
+              value={getText(text, record, d.name)}
+              onChange={(e) =>
+                handlePropertyChange(c, index2, d.name, e.target.value)
+              }
+            />
+          ),
+        };
+      }),
+      {
+        title: "Action",
+        dataIndex: "",
+        render: (text: string, record, index: number) => (
+          <Button onClick={() => handleRemoveProperty(c, index)}>Delete</Button>
+        ),
+      },
+    ];
+
+    //setColumns({ columns: ccolumns, handleAddProperty });
+    columns[c] = { columns: ccolumns, handleAddProperty, handlePropertyChange };
+  });
+
+  console.log("RENDER", properties);
 
   return (
     <Edit
@@ -198,6 +249,7 @@ export const ConfigurationsEdit: React.FC<
         }
       >
         <Form.Item
+          key="CN"
           label="Name"
           name="name"
           rules={[
@@ -209,6 +261,7 @@ export const ConfigurationsEdit: React.FC<
           <Input />
         </Form.Item>
         <Form.Item
+          key="CD"
           label="Description"
           name="description"
           rules={[
@@ -220,8 +273,9 @@ export const ConfigurationsEdit: React.FC<
           <Input />
         </Form.Item>
         <Form.Item
-          label="Configuration Template"
-          name={["configurationTemplate", "id"]}
+          key="CT"
+          label="Configuration Templates"
+          name={["configurationTemplate"]}
           rules={[
             {
               required: true,
@@ -230,16 +284,52 @@ export const ConfigurationsEdit: React.FC<
         >
           <Select
             mode="multiple"
+            //defaultValue={configurationTemplate.defaultValueQueryResult.data}
+            //onBlur={() => configurationTemplateSelectProps?.onSearch?.("")}
             {...configurationTemplateSelectProps}
-            
-            onChange={(e, t) => setMyValue(e)}
+            onChange={(e, t) => {
+              let eee = e as unknown;
+              let ee = eee as SetStateAction<never[]>;
+              setMyValue(ee);
+            }}
           />
         </Form.Item>
-        <Form.Item name="properties" label="Properties">
-          <Table dataSource={propertiesArray} columns={columns}></Table>
-        </Form.Item>
+        {(myValue || (postData?.configurationTemplate ?? [])).map(
+          (c: number) => (
+            <React.Fragment>
+              <Form.Item
+                name="properties"
+                label={
+                  "Properties of type " +
+                    configurationTemplateSelectProps?.options?.find(
+                      (o) => o.value === c
+                    )?.label ?? ""
+                }
+              >
+                <Table
+                  dataSource={properties[c]}
+                  columns={columns[c] ? columns[c].columns : []}
+                ></Table>
+              </Form.Item>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  marginRight: "20px",
+                }}
+              >
+                <Button onClick={() => columns[c].handleAddProperty(c)}>
+                  Add
+                </Button>
+              </div>
+            </React.Fragment>
+          )
+        ) ?? null}
       </Form>
-      <Button onClick={handleAddProperty}>Add</Button>
     </Edit>
   );
+  //  <Form.Item name="properties" label="Properties">
+  //  <Table dataSource={propertiesArray} columns={columns}></Table>
+  //</Form.Item>
+  //  <Button onClick={handleAddProperty}>Add</Button>
 };

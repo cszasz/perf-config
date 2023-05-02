@@ -14,6 +14,9 @@ public class PropertyInstance {
 	String inter;
 
 	@JsonProperty
+	Long configuration_template;
+
+	@JsonProperty
 	String name;
 
 	@JsonProperty

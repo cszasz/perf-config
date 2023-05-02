@@ -41,8 +41,8 @@ public class Configuration {
 	List<PropertyInstance> properties = new ArrayList<>();
 
 	@JsonProperty
-	@JsonSerialize(using = IDArraySerializer.class)
-	@JsonDeserialize(using = IDArrayDeserializer.class)
+	//@JsonSerialize(using = IDArraySerializer.class)
+	//@JsonDeserialize(using = IDArrayDeserializer.class)
 	@ElementCollection
 	List<Long> configurationTemplate = new ArrayList<>();
 
