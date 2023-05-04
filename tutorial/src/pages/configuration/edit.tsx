@@ -1,6 +1,5 @@
 import React, { SetStateAction, useEffect, useState } from "react";
 import { IResourceComponentsProps } from "@refinedev/core";
-import type { SelectProps } from "antd";
 
 import {
   Edit,
@@ -15,13 +14,10 @@ import { Form, Input, Select, Space, Table } from "antd";
 import {
   IConfiguration,
   IConfigurationTemplate,
-  IEnvironment,
   IPropertyInstance,
 } from "interfaces";
 import { Button } from "@mui/material";
 import { API_URL } from "App";
-
-var isSuccess: boolean | undefined = false;
 
 export const ConfigurationsEdit: React.FC<
   IResourceComponentsProps<IConfiguration>
@@ -29,35 +25,44 @@ export const ConfigurationsEdit: React.FC<
   const all = useForm<IConfiguration>({});
   const { form, formProps, saveButtonProps, queryResult } = all;
 
-  const propertiesMap = {};
-
   const postData = queryResult?.data?.data;
 
   const propertiesArray: any = { init: true }; //Object.values(propertiesMap);
 
   const [properties, setProperties] = useState(propertiesArray);
 
-  const [propertiesSet, setPropertiesSet] = useState(postData?.properties);
-
-  if (propertiesArray.init)
-    postData?.properties &&
-      postData?.properties.forEach((p) => {
-        if (!properties[p.configuration_template]) {
-          properties[p.configuration_template] = [];
-        }
-        var propertiesc: any = properties[p.configuration_template].find(
-          (pp) => pp["interface"] === p.interface
-        );
-        console.log(p.interface, propertiesc);
-        if (!propertiesc) {
-          propertiesc = { interface: p.interface };
-          properties[p.configuration_template].push(propertiesc);
-        }
-        propertiesc[p.name] = p.value;
-      });
+  //const [propertiesSet, setPropertiesSet] = useState(postData?.properties);
 
   let initValue: any = 0;
   const [myValue, setMyValue] = useState(initValue);
+
+  if (properties.init && queryResult?.isSuccess) {
+    const props: any = {};
+    postData?.properties &&
+      postData?.properties.forEach((p) => {
+        if (!props[p.configuration_template]) {
+          props[p.configuration_template] = [];
+        }
+        var propertiesc: any = props[p.configuration_template].find(
+          (pp) => pp["interface"] === p.interface
+        );
+        if (!propertiesc) {
+          propertiesc = { interface: p.interface };
+          props[p.configuration_template].push(propertiesc);
+        }
+        propertiesc[p.name] = p.value;
+      });
+    //props.configurationTemplate = [...postData?.configurationTemplate];
+    setProperties(props);
+    /*
+    let eee = postData?.configurationTemplate as unknown;
+    let ee = eee as SetStateAction<never[]>;
+    //setTimeout(() => {
+    //setData({ init: ee });
+    setMyValue(ee);
+    //}, 100);
+    */
+  }
 
   const { selectProps: configurationTemplateSelectProps } =
     useSelect<IConfigurationTemplate>({
@@ -67,13 +72,6 @@ export const ConfigurationsEdit: React.FC<
     });
 
   const [data, setData] = useState({});
-
-  interface CC {
-    columns: any;
-    handleAddProperty: any;
-  }
-
-  let ccc: CC = { columns: [], handleAddProperty: () => {} };
 
   //const [columns, setColumns] = useState(ccc);
 
@@ -102,13 +100,21 @@ export const ConfigurationsEdit: React.FC<
       };
       ff();
     }
-  }, [myValue]);
+  }, [myValue, data]);
 
-  function updateProperties() {
+  useEffect(
+    () => () => {
+      setProperties({ init: true });
+      //setMyValue(0);
+    },
+    [myValue]
+  );
+
+  function updateProperties(propertiesA) {
     const props: IPropertyInstance[] = [];
-    Object.keys(properties).forEach((c) => {
+    Object.keys(propertiesA).forEach((c) => {
       if (c === "init") return;
-      properties[c].forEach((p) => {
+      propertiesA[c].forEach((p) => {
         Object.keys(p).forEach((d) => {
           if (d === "interface") return;
           const o: IPropertyInstance = {
@@ -130,11 +136,11 @@ export const ConfigurationsEdit: React.FC<
     name: string,
     value: any
   ) => {
-    console.log(c, index2, name, value);
     const propertiesArray = { ...properties };
     propertiesArray[c][index2][name] = value;
     setProperties(propertiesArray);
-    updateProperties();
+    //form.resetFields();
+    updateProperties(propertiesArray);
   };
 
   const handleAddProperty = (c: number) => {
@@ -147,8 +153,12 @@ export const ConfigurationsEdit: React.FC<
     propertiesArray[c].push(newRow);
     //form.setFieldValue("properties", [...properties]);
     form.resetFields();
+    setTimeout(() => {
+      console.log(myValue);
+      setMyValue([...myValue]);
+    }, 1000);
     setProperties(propertiesArray);
-    updateProperties();
+    updateProperties(propertiesArray);
   };
 
   const handleRemoveProperty = (c: number, index) => {
@@ -157,14 +167,14 @@ export const ConfigurationsEdit: React.FC<
     //updateProperties();
     form.resetFields();
     setProperties(propertiesArray);
-    updateProperties();
+    updateProperties(propertiesArray);
   };
 
   function getText(text: string, record: object, name: string) {
     return record[name];
   }
 
-  if (!myValue && (!data || data["init"] != postData?.configurationTemplate)) {
+  if (!myValue && (!data || data["init"] !== postData?.configurationTemplate)) {
     let eee = postData?.configurationTemplate as unknown;
     let ee = eee as SetStateAction<never[]>;
     setTimeout(() => {
@@ -225,7 +235,7 @@ export const ConfigurationsEdit: React.FC<
     columns[c] = { columns: ccolumns, handleAddProperty, handlePropertyChange };
   });
 
-  console.log("RENDER", properties);
+  //console.log("RENDER", properties);
 
   return (
     <Edit
