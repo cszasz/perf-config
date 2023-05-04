@@ -27,7 +27,7 @@ export interface IProperty {
 
 export interface IPropertyInstance {
     configuration_template: number,
-    interface: string,
+    inter: string,
     name: string;
     value: string,
 }

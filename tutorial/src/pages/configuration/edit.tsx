@@ -44,10 +44,10 @@ export const ConfigurationsEdit: React.FC<
           props[p.configuration_template] = [];
         }
         var propertiesc: any = props[p.configuration_template].find(
-          (pp) => pp["interface"] === p.interface
+          (pp) => pp["inter"] === p.inter
         );
         if (!propertiesc) {
-          propertiesc = { interface: p.interface };
+          propertiesc = { inter: p.inter };
           props[p.configuration_template].push(propertiesc);
         }
         propertiesc[p.name] = p.value;
@@ -116,10 +116,10 @@ export const ConfigurationsEdit: React.FC<
       if (c === "init") return;
       propertiesA[c].forEach((p) => {
         Object.keys(p).forEach((d) => {
-          if (d === "interface") return;
+          if (d === "inter") return;
           const o: IPropertyInstance = {
             configuration_template: Number(c),
-            interface: String(p["interface"]),
+            inter: String(p["inter"]),
             name: d,
             value: p[d],
           };
@@ -128,6 +128,7 @@ export const ConfigurationsEdit: React.FC<
       });
     });
     form.setFieldValue("properties", props);
+    console.log(props);
   }
 
   const handlePropertyChange = (
@@ -153,10 +154,11 @@ export const ConfigurationsEdit: React.FC<
     propertiesArray[c].push(newRow);
     //form.setFieldValue("properties", [...properties]);
     form.resetFields();
+    /*
     setTimeout(() => {
-      console.log(myValue);
       setMyValue([...myValue]);
     }, 1000);
+    */
     setProperties(propertiesArray);
     updateProperties(propertiesArray);
   };
@@ -198,12 +200,12 @@ export const ConfigurationsEdit: React.FC<
     const ccolumns = [
       {
         title: "Interface",
-        dataIndex: "interface",
+        dataIndex: "inter",
         render: (text: string, record, index: number) => (
           <Input
             value={text}
             onChange={(e) =>
-              handlePropertyChange(c, index, "interface", e.target.value)
+              handlePropertyChange(c, index, "inter", e.target.value)
             }
           />
         ),

@@ -1,16 +1,13 @@
 package hu.kh.perfconfig.entities;
 
-import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Embeddable
 public class PropertyInstance {
 	
-	@JsonProperty("interface")
-	@Column(name="interface")
+	@JsonProperty
 	String inter;
 
 	@JsonProperty
@@ -22,9 +19,12 @@ public class PropertyInstance {
 	@JsonProperty
 	String value;
 	
-	@JsonIgnore
 	public String getInterface() {
 		return inter;
+	}
+
+	public void setInterface(String inter) {
+		this.inter = inter;
 	}
 
 }
