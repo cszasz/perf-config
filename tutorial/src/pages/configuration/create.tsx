@@ -75,6 +75,7 @@ export const ConfigurationsCreate: React.FC<IResourceComponentsProps> = () => {
         <Form.Item
           label="Name"
           name="name"
+          tooltip="description"
           rules={[
             {
               required: true,

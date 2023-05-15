@@ -23,7 +23,7 @@ export const ConfigurationTemplateCreate: React.FC<
 
   const handleAddProperty = () => {
     const newProperties: IProperty[] = [...properties];
-    properties.push({ name: "", value: "" });
+    properties.push({ name: "", value: "", description: "" });
     form.setFieldValue("name", "jhj");
     form.resetFields();
   };

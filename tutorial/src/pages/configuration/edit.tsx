@@ -11,13 +11,16 @@ import {
 
 import { Form, Input, Select, Space, Table } from "antd";
 
+import QuestionCircledIcon from "@ant-design/icons/QuestionCircleOutlined";
+
 import {
   IConfiguration,
   IConfigurationTemplate,
   IPropertyInstance,
 } from "interfaces";
-import { Button } from "@mui/material";
+import { Button, Tooltip } from "@mui/material";
 import { API_URL } from "App";
+import { QuestionMark, QuestionMarkOutlined } from "@mui/icons-material";
 
 export const ConfigurationsEdit: React.FC<
   IResourceComponentsProps<IConfiguration>
@@ -200,6 +203,7 @@ export const ConfigurationsEdit: React.FC<
     const ccolumns = [
       {
         title: "Interface",
+        tooltip: "aaa",
         dataIndex: "inter",
         render: (text: string, record, index: number) => (
           <Input
@@ -212,7 +216,16 @@ export const ConfigurationsEdit: React.FC<
       },
       ...data[c].properties.map((d, index) => {
         return {
-          title: d.name,
+          title: () => (
+            <div>
+              <span>{d.name} </span>
+              {d.description ? (
+                <Tooltip title={d.description}>
+                  <QuestionCircledIcon />
+                </Tooltip>
+              ) : null}
+            </div>
+          ),
           dataIndex: index,
           render: (text: string, record, index2: number) => (
             <Input

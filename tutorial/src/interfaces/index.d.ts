@@ -23,6 +23,7 @@ export interface IConfigurationTemplate {
 export interface IProperty {
     name: string;
     value: string,
+    description: string
 }
 
 export interface IPropertyInstance {

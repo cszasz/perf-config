@@ -14,4 +14,7 @@ public class Property {
 	@JsonProperty
 	String value;
 
+	@JsonProperty
+	String description;
+
 }

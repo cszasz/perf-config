@@ -18,7 +18,7 @@ export const ConfigurationTemplateEdit: React.FC<
   const properties: IProperty[] = postData?.properties ?? [];
 
   const handleAddProperty = () => {
-    properties.push({ name: "", value: "" });
+    properties.push({ name: "", value: "", description: "" });
     form.resetFields();
   };
 
@@ -55,6 +55,18 @@ export const ConfigurationTemplateEdit: React.FC<
         <Input
           value={text}
           onChange={(e) => handlePropertyChange(index, "value", e.target.value)}
+        />
+      ),
+    },
+    {
+      title: "Description",
+      dataIndex: "description",
+      render: (text: string, record: IProperty, index: number) => (
+        <Input
+          value={text}
+          onChange={(e) =>
+            handlePropertyChange(index, "description", e.target.value)
+          }
         />
       ),
     },
