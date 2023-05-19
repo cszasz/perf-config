@@ -119,6 +119,7 @@ export const ConfigurationsEdit: React.FC<
       if (c === "init") return;
       propertiesA[c].forEach((p) => {
         Object.keys(p).forEach((d) => {
+          console.log(d);
           if (d === "inter") return;
           const o: IPropertyInstance = {
             configuration_template: Number(c),
@@ -149,7 +150,7 @@ export const ConfigurationsEdit: React.FC<
 
   const handleAddProperty = (c: number) => {
     const propertiesArray = { ...properties };
-    const newRow = { interface: "" };
+    const newRow = { inter: "" };
     data[c].properties.forEach((p) => {
       newRow[p.name] = p.value;
     });
