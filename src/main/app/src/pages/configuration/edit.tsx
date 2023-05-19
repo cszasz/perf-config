@@ -132,7 +132,6 @@ export const ConfigurationsEdit: React.FC<
       });
     });
     form.setFieldValue("properties", props);
-    console.log(props);
   }
 
   const handlePropertyChange = (
