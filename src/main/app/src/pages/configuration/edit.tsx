@@ -132,6 +132,7 @@ export const ConfigurationsEdit: React.FC<
       });
     });
     form.setFieldValue("properties", props);
+    console.log(props);
   }
 
   const handlePropertyChange = (
@@ -203,7 +204,6 @@ export const ConfigurationsEdit: React.FC<
     const ccolumns = [
       {
         title: "Interface",
-        tooltip: "aaa",
         dataIndex: "inter",
         render: (text: string, record, index: number) => (
           <Input
