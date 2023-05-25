@@ -39,8 +39,15 @@ export const ConfigurationsEdit: React.FC<
   let initValue: any = 0;
   const [myValue, setMyValue] = useState(initValue);
 
-  if (properties.init && queryResult?.isSuccess) {
-    const props: any = {};
+  console.log(
+    postData?.properties[0].inter,
+    properties.init,
+    queryResult?.isRefetching,
+    queryResult?.isStale
+  );
+
+  if (properties.init && queryResult?.isSuccess && !queryResult?.isRefetching) {
+    const props: any = { init: false };
     postData?.properties &&
       postData?.properties.forEach((p) => {
         if (!props[p.configuration_template]) {
@@ -55,16 +62,8 @@ export const ConfigurationsEdit: React.FC<
         }
         propertiesc[p.name] = p.value;
       });
-    //props.configurationTemplate = [...postData?.configurationTemplate];
     setProperties(props);
-    /*
-    let eee = postData?.configurationTemplate as unknown;
-    let ee = eee as SetStateAction<never[]>;
-    //setTimeout(() => {
-    //setData({ init: ee });
-    setMyValue(ee);
-    //}, 100);
-    */
+    console.log("SET");
   }
 
   const { selectProps: configurationTemplateSelectProps } =
@@ -119,7 +118,6 @@ export const ConfigurationsEdit: React.FC<
       if (c === "init") return;
       propertiesA[c].forEach((p) => {
         Object.keys(p).forEach((d) => {
-          console.log(d);
           if (d === "inter") return;
           const o: IPropertyInstance = {
             configuration_template: Number(c),
@@ -132,7 +130,6 @@ export const ConfigurationsEdit: React.FC<
       });
     });
     form.setFieldValue("properties", props);
-    console.log(props);
   }
 
   const handlePropertyChange = (
