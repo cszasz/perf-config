@@ -30,7 +30,8 @@ import { GoalShow } from "pages/goals/show";
 import { GoalEdit } from "pages/goals/edit";
 import { GoalCreate } from "pages/goals/create";
 
-export const API_URL = "http://localhost:8888/api";
+export const API_URL =
+  window.location.port == "3000" ? "http://localhost:8888/api" : "/api";
 
 const App: React.FC = () => {
   return (
