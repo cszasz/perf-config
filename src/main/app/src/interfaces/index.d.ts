@@ -28,6 +28,7 @@ export interface IProperty {
 
 export interface IPropertyInstance {
     configuration_template: number,
+    configuration_template_id: string,
     inter: string,
     name: string;
     value: string,
@@ -38,8 +39,12 @@ export interface IConfiguration {
     name: string;
     description: string,
     properties: [IPropertyInstance],
-    configurationTemplate: number[],
-    environment: IEnvironment
+    //configurationTemplate: number[],
+    environment: IEnvironment,
+    graph: {
+        nodes: Map,
+        edges: Map
+    }
 }
 
 export interface ITag {

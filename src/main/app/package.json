@@ -29,11 +29,13 @@
     "antd": "^5.4.6",
     "react": "^18.0.0",
     "react-admin": "^4.9.0",
+    "react-digraph": "^9.1.1",
     "react-dom": "^18.0.0",
     "react-hook-form": "^7.30.0",
     "react-router-dom": "^6.8.1",
     "react-scripts": "^5.0.0",
-    "refine": "^0.0.1-alpha"
+    "refine": "^0.0.1-alpha",
+    "storm-react-diagrams": "^5.2.1"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.4",

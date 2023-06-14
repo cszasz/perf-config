@@ -14,6 +14,9 @@ public class PropertyInstance {
 	Long configuration_template;
 
 	@JsonProperty
+	String configuration_template_id;
+
+	@JsonProperty
 	String name;
 
 	@JsonProperty

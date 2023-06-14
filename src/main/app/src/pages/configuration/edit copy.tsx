@@ -37,6 +37,8 @@ import {
 } from "storm-react-diagrams";
 import Graph from "components/graph/Graph";
 
+var gr;
+
 export const ConfigurationsEdit: React.FC<
   IResourceComponentsProps<IConfiguration>
 > = (x) => {
@@ -69,14 +71,14 @@ export const ConfigurationsEdit: React.FC<
   let initGraph: any = {
     nodes: [
       {
-        id: "start",
+        id: "1",
         title: "",
         type: "start",
         x: -200,
         y: 200,
       },
       {
-        id: "end",
+        id: "4",
         title: "",
         type: "end",
         x: 200,
@@ -91,6 +93,12 @@ export const ConfigurationsEdit: React.FC<
     setGraph2(g);
     form.setFieldValue("graph", g);
   };
+
+  console.log(graph);
+
+  if (JSON.stringify(graph) != JSON.stringify(gr)) {
+    gr = graph;
+  }
 
   const initSelected = {
     nodes: new Map(),
@@ -140,7 +148,7 @@ export const ConfigurationsEdit: React.FC<
 
     if (templates_used.length) {
       const ff = async () => {
-        let d: any = { init: true };
+        let d: any = {};
         d = {
           ...data,
           init: myValue,
@@ -206,14 +214,15 @@ export const ConfigurationsEdit: React.FC<
     name: string,
     value: any
   ) => {
-    const propertiesArray = JSON.parse(JSON.stringify(properties));
+    const propertiesArray = { ...properties };
     propertiesArray[c][node_id][index2][name] = value;
     setProperties(propertiesArray);
+    //form.resetFields();
     updateProperties(propertiesArray);
   };
 
   const handleAddProperty = (c: number, node_id: number) => {
-    const propertiesArray = JSON.parse(JSON.stringify(properties));
+    const propertiesArray = { ...properties };
     const newRow = { inter: "" };
     data[c].properties.forEach((p) => {
       newRow[p.name] = p.value;
@@ -221,14 +230,22 @@ export const ConfigurationsEdit: React.FC<
     if (!propertiesArray[c]) propertiesArray[c] = {};
     if (!propertiesArray[c][node_id]) propertiesArray[c][node_id] = [];
     propertiesArray[c][node_id].push(newRow);
+    //form.setFieldValue("properties", [...properties]);
+    form.resetFields();
+    /*
+    setTimeout(() => {
+      setMyValue([...myValue]);
+    }, 1000);
+    */
     setProperties(propertiesArray);
     updateProperties(propertiesArray);
   };
 
   const handleRemoveProperty = (c: number, node_id: number, index) => {
-    const propertiesArray = JSON.parse(JSON.stringify(properties));
+    const propertiesArray = { ...properties };
     propertiesArray[c][node_id].splice(index, 1);
     //updateProperties();
+    form.resetFields();
     setProperties(propertiesArray);
     updateProperties(propertiesArray);
   };
@@ -237,11 +254,11 @@ export const ConfigurationsEdit: React.FC<
     return record[name];
   }
 
-  if (!data["init"] && queryResult?.isFetched) {
+  if (!myValue && (!data || data["init"] !== postData?.graph)) {
     //let eee = postData?.configurationTemplate as unknown;
     //let ee = eee as SetStateAction<never[]>;
     setTimeout(() => {
-      setData({ ...data, init: true });
+      //setData({ init: ee });
       //setMyValue(ee);
       setGraph2(postData?.graph?.nodes.length ? postData?.graph : initGraph);
     }, 100);
@@ -261,78 +278,75 @@ export const ConfigurationsEdit: React.FC<
 
   if (selected?.nodes?.size && data) {
     const node = Array.from(selected.nodes.values())[0];
-    if (node.template) {
-      template = node.template.value;
-      configuration_template_id = node.id;
-      if (data[template]) {
-        columns = [
-          {
-            title: "Interface",
-            dataIndex: "inter",
-            render: (text: string, record, index: number) => (
+    template = node.template.value;
+    configuration_template_id = node.id;
+    if (data[template])
+      columns = [
+        {
+          title: "Interface",
+          dataIndex: "inter",
+          render: (text: string, record, index: number) => (
+            <Input
+              value={text}
+              onChange={(e) => {
+                handlePropertyChange(
+                  template,
+                  configuration_template_id,
+                  index,
+                  "inter",
+                  e.target.value
+                );
+              }}
+            />
+          ),
+        },
+        ...data[template].properties.map((d, index) => {
+          return {
+            title: () => (
+              <div>
+                <span>{d.name} </span>
+                {d.description ? (
+                  <Tooltip title={d.description}>
+                    <QuestionCircledIcon />
+                  </Tooltip>
+                ) : null}
+              </div>
+            ),
+            dataIndex: index,
+            render: (text: string, record, index2: number) => (
               <Input
-                value={text}
+                value={getText(text, record, d.name)}
                 onChange={(e) => {
                   handlePropertyChange(
                     template,
                     configuration_template_id,
-                    index,
-                    "inter",
+                    index2,
+                    d.name,
                     e.target.value
                   );
                 }}
               />
             ),
-          },
-          ...data[template].properties.map((d, index) => {
-            return {
-              title: () => (
-                <div>
-                  <span>{d.name} </span>
-                  {d.description ? (
-                    <Tooltip title={d.description}>
-                      <QuestionCircledIcon />
-                    </Tooltip>
-                  ) : null}
-                </div>
-              ),
-              dataIndex: index,
-              render: (text: string, record, index2: number) => (
-                <Input
-                  value={getText(text, record, d.name)}
-                  onChange={(e) => {
-                    handlePropertyChange(
-                      template,
-                      configuration_template_id,
-                      index2,
-                      d.name,
-                      e.target.value
-                    );
-                  }}
-                />
-              ),
-            };
-          }),
-          {
-            title: "Action",
-            dataIndex: "",
-            render: (text: string, record, index: number) => (
-              <Button
-                onClick={() => {
-                  handleRemoveProperty(
-                    template,
-                    configuration_template_id,
-                    index
-                  );
-                }}
-              >
-                Delete
-              </Button>
-            ),
-          },
-        ];
-      }
-    }
+          };
+        }),
+        {
+          title: "Action",
+          dataIndex: "",
+          render: (text: string, record, index: number) => (
+            <Button
+              onClick={() => {
+                handleRemoveProperty(
+                  template,
+                  configuration_template_id,
+                  index
+                );
+              }}
+            >
+              Delete
+            </Button>
+          ),
+        },
+      ];
   }
 
   //setColumns({ columns: ccolumns, handleAddProperty });
@@ -448,13 +462,13 @@ export const ConfigurationsEdit: React.FC<
         >
           <Input />
         </Form.Item>
-        <Form.Item key="graph" label="Configuration graph" name="graph">
+        <Form.Item key="graph" label="Configuration Templates" name="graph">
           <Graph
             key="graph"
             options={configurationTemplateSelectProps.options}
             selected={selected}
             setSelected={setSelected}
-            graph={graph}
+            graph={gr}
             setState={setGraph}
           />
         </Form.Item>

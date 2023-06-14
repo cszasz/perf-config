@@ -1,0 +1,56 @@
+.App {
+    font-family: sans-serif;
+    text-align: center;
+  }
+  
+  .srd-demo-canvas {
+    width: 100%;
+    height: 95vh;
+    background: rgb(27, 33, 44);
+  }
+  
+  .intent-node {
+    background: white;
+    height: 100%;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: rgb(69, 69, 216);
+  }
+  
+  .intent-node:hover {
+    box-shadow: 0 0 20px rgb(69, 69, 216, 0.4);
+  }
+  
+  .port {
+    height: 16px;
+    width: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border-radius: 50%;
+  }
+  
+  .port.selected {
+    background: rgba(0, 0, 0, 0.3);
+  }
+  
+  .port-dot {
+    height: 50%;
+    width: 50%;
+    border-radius: 50%;
+    background: rgb(69, 69, 216);
+  }
+
+  .ant-card-actions {
+    position: sticky;
+    bottom: 0;
+  }
+  
+  :where(.css-dev-only-do-not-override-yp8pcc).ant-table-wrapper .ant-table-tbody>tr>td {
+    padding: 0;
+    min-width: 200px;
+  }

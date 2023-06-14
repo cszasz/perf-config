@@ -31,7 +31,9 @@ import { GoalEdit } from "pages/goals/edit";
 import { GoalCreate } from "pages/goals/create";
 
 export const API_URL =
-  window.location.port == "3000" ? "http://localhost:8888/api" : "/api";
+  window.location.port == "3000"
+    ? "http://localhost:8888/csabatool/api"
+    : "/api";
 
 const App: React.FC = () => {
   return (
