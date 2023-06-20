@@ -14,6 +14,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -85,7 +86,7 @@ public class Configuration {
 	List<Long> configurationTemplate = new ArrayList<>();
 
 	@JsonProperty
-	@Column(columnDefinition = "MEDIUMTEXT")
+	@Lob
 	@JsonDeserialize(using = JSonToStringDeserializer.class)
 	@JsonSerialize(using = MyStringToJSON.class)
 	String graph = "{" + "    nodes: [" + "      {" + "        id: \"start\"," + "        title: \"\","
@@ -93,8 +94,9 @@ public class Configuration {
 			+ "        id: \"end\"," + "        title: \"\"," + "        type: \"end\"," + "        x: 200,"
 			+ "        y: 200," + "      }," + "    ]," + "    edges: []," + "  }";
 	
+	@Lob
 	@JsonProperty
-	@Column(columnDefinition = "MEDIUMTEXT")
+	@Column(name = "jsontext")
 	String json;
 	
 	@JsonProperty
@@ -181,11 +183,26 @@ public class Configuration {
 		String json = StringUtils.join(newnodes).toString();
 		
 		for (int i=0; i<20 && newnodes.size()>1; i++) {
-			newnodes = convertSequential(newnodes,edges);
-			newnodes = convertParallel(newnodes,edges);
 			json = StringUtils.join(newnodes).toString();
+			for (int j=0; j<20; j++) {
+				newnodes = convertSequential(newnodes,edges);
+				String json2 = StringUtils.join(newnodes).toString();
+				if (json.equals(json2))
+					break;
+				json = json2;
+				System.out.println(new JSONArray(json).toString(3));
+			}
+			for (int j=0; j<20; j++) {
+				newnodes = convertParallel(newnodes,edges);
+				String json2 = StringUtils.join(newnodes).toString();
+				if (json.equals(json2))
+					break;
+				json = json2;
+				System.out.println(new JSONArray(json).toString(3));
+			}
 		}
 		json = newnodes.get(0).toString();
+		System.out.println(new JSONObject(json).toString(3));
 		return new JSONObject(json).toString(3);
 	}
 
@@ -252,16 +269,16 @@ public class Configuration {
 			if (incomingCount==0 && outgoingCount==0) {
 				Node sourceNode = newnodes.stream().filter(n-> n.idEquals(e1.source)).findFirst().get();
 				Node targetNode = newnodes.stream().filter(n-> n.idEquals(e1.target)).findFirst().get();
-				if (sourceNode instanceof Sequential  && targetNode instanceof Node) {
+				if (sourceNode instanceof Sequential  && targetNode instanceof Sequential) {
+					newnodes.remove(targetNode);
+					((Sequential)sourceNode).nodes.addAll(((Sequential)targetNode).nodes);
+				} else if (sourceNode instanceof Sequential  && targetNode instanceof Node) {
 					((Sequential)sourceNode).nodes.add(targetNode);
 					newnodes.remove(targetNode);
 				} else if (sourceNode instanceof Node  && targetNode instanceof Sequential) {
 					newnodes.remove(sourceNode);
 					((Sequential)targetNode).nodes.add(0,sourceNode);
-				} else if (sourceNode instanceof Sequential  && targetNode instanceof Sequential) {
-					newnodes.remove(targetNode);
-					((Sequential)sourceNode).nodes.addAll(((Sequential)targetNode).nodes);
-				} else {
+				} else  {
 					newnodes.remove(sourceNode);
 					newnodes.remove(targetNode);
 					newnodes.add(new Sequential(sourceNode, targetNode));
@@ -296,16 +313,16 @@ public class Configuration {
 								edges.remove(incomingEdges2.get(0));
 								edges.remove(outgoingEdges2.get(0));
 								
-								if (n1 instanceof Parallel && n2 instanceof Node) {
+								if (n1 instanceof Parallel  && n2 instanceof Parallel) {
+									newnodes.remove(n2);
+									((Parallel)n1).nodes.addAll(((Parallel)n2).nodes);
+								} else if (n1 instanceof Parallel && n2 instanceof Node) {
 									((Parallel)n1).nodes.add(n2);
 									newnodes.remove(n2);
 								} else if (n1 instanceof Node  && n2 instanceof Parallel) {
 									newnodes.remove(n1);
 									((Parallel)n2).nodes.add(0,n1);
-								} else if (n1 instanceof Parallel  && n2 instanceof Parallel) {
-									newnodes.remove(n2);
-									((Parallel)n1).nodes.addAll(((Parallel)n2).nodes);
-								} else {
+								} else  {
 									newnodes.remove(n1);
 									newnodes.remove(n2);
 									newnodes.add(new Parallel(n1, n2));
